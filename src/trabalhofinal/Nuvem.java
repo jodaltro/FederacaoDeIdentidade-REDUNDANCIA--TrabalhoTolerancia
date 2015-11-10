@@ -21,12 +21,12 @@ import java.util.Set;
 
 /**
  *
- * @author kinst
+ * @author Jodaltro
  */
 public class Nuvem {
 
     public static ArrayList<No> nos;
-    private static int porta = 8184;
+    public static int porta = 8184;
     private static URL bootstrapURL = null;
     public static No nodoaux = null;
     public static ChordImpl chord = null; 
@@ -36,31 +36,36 @@ public class Nuvem {
     
     public static void novoUsuario(String usuario, String senha)
     {
+       /* File arquivo = null;
+        String dir = null;
+        StringKey myKEY = null;*/
         Usuario user = null;
         user = new Usuario();
-            user.setNome(usuario);
+            user.setNome(usuario.trim()); // trim para remover os espaços presentes no username
             user.setSenha(senha);
             Nuvem.adicionaSenha(user, nodoaux);
     }
     
     public static boolean criaRede()
     {
-        de.uniba.wiai.lspi.chord.service.PropertiesLoader.loadPropertyFile();
-        Nuvem.chord = new de.uniba.wiai.lspi.chord.service.impl.ChordImpl();
-       nos = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            nos.add(new No(porta, nNos));
-            if (porta == 8184) {
-                bootstrapURL = nos.get(0).getAdress();
-                setRede(nos.get(0).getNo(), nos.get(0).getAdress());
-            } else {
-                setNodo(nos.get(i).getNo(), nos.get(i).getAdress(), bootstrapURL);
-            }
-            System.out.println("Criado No:" + (i) + " Porta:" + nos.get(i).getPorta() + " Id: " + nos.get(i).getID());
-            Nuvem.porta++;
-            Nuvem.nNos++;
-        }
-        return true;
+    	nos = new ArrayList<>();
+    	try {
+    		for (int i = 0; i < 5; i++) {
+    			nos.add(new No(porta, nNos));
+    			if (porta == 8184) {
+    				bootstrapURL = nos.get(0).getAdress();
+    				setRede(nos.get(0).getNo(), nos.get(0).getAdress());
+    			} else {
+    				setNodo(nos.get(i).getNo(), nos.get(i).getAdress(), bootstrapURL);
+    			}
+    			System.out.println("Criado No:" + (i) + " Porta:" + nos.get(i).getPorta() + " Id: " + nos.get(i).getID());
+    			Nuvem.porta++;
+    			Nuvem.nNos++;
+    		}
+    		return true;
+    	} catch (Exception e) {
+    		return false;
+    	}
     }
 
     public static void setRede(ChordImpl begin, URL url) {
@@ -122,15 +127,15 @@ public class Nuvem {
         return new StringKey(nome);
     }
     
-    public static String validaUsuario(String usuario, String senha ,Nodo no)
+    public static String validaUsuario(String usuario, String senha/* ,Nodo no*/)
     {
         String codigo = null;
         String aux = null;
         String aux2 = null;
         Usuario user = new Usuario();
-        StringKey myKey = new StringKey(usuario);
+        StringKey myKey = new StringKey(usuario.trim());
         Set<Serializable> vals = null;
-        vals = no.getChord().retrieve(myKey);
+        vals = nodoaux.getNo().retrieve(myKey);
         Iterator<Serializable> it = vals.iterator();
         while (it.hasNext()) {
             aux = (String) it.next();
@@ -162,9 +167,11 @@ public class Nuvem {
                     continue;
             }
         }
+        // verifica se a senha armazenada é a mesma que o usuario digitou
+        // caso seja, criptografa a senha e retorna o código armazenado
         if (user.juntaSenha().equals(user.criptografaSenha(senha))) {
             myKey = new StringKey(senha);
-            vals = no.getChord().retrieve(myKey);
+            vals = nodoaux.getNo().retrieve(myKey);
             it = vals.iterator();
             while (it.hasNext()) {
                 codigo = (String) it.next();
